@@ -3,25 +3,16 @@ package com.obscaeris;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javafx.beans.Observable;
 import javafx.collections.ObservableList;
-import javafx.css.ParsedValue;
-import javafx.css.StyleConverter;
-import javafx.css.converter.PaintConverter;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.effect.Light.Point;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
@@ -204,6 +195,12 @@ public class Graph {
     public static void drawLink(Group root, Graph g0, Graph g1, Color color, boolean debug) {
         Point2D s = g0.origin;
         Point2D e = g1.origin;
+
+        if(g0.equals(g1)){
+            // TODO: Handle line drawing to self
+            System.out.printf("%s -> %s, Self-reference not yet handled in drawLink", g0.name, g1.name);
+        }
+
         Line l = new Line(s.getX(), s.getY(), e.getX(), e.getY());
         l.setStroke(color);
         l.setStrokeWidth(2.0);
@@ -211,6 +208,18 @@ public class Graph {
             System.out.printf("Created line: %s\n", l);
         root.getChildren().add(l);
         l.toBack();
+    }
+
+
+    public static String genAdjString(String node, String[] neighbours){
+        StringBuilder sb = new StringBuilder(node).append(":");
+        int c = 0;
+        for(String ngh: neighbours){
+            sb.append(ngh).append(c == neighbours.length - 1 ? ";" : ",");
+            c++;
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -238,7 +247,7 @@ public class Graph {
             String node = parts[0];
             ArrayList<String> adjNodeList = new ArrayList<String>();
 
-            if (parts.length == 2 && parts[1].contains(",")) {
+            if (parts.length == 2) {
                 for (String adjN : parts[1].split(",")) {
                     adjNodeList.add(adjN);
                 }
